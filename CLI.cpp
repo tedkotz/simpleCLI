@@ -8,43 +8,38 @@
  */
 
 /* Includes ******************************************************************/
-/* Defines *******************************************************************/
-/* Types *********************************************************************/
-/* Interfaces ****************************************************************/
-/* Data **********************************************************************/
-/* Functions *****************************************************************/
-
-/**
- * [Description]
- *
- * @param
- * @return
- */
-
 #include "CLI.h"
 
 #include <Arduino.h>
+#include <errno.h>
 #include "conio.h"
 
+/* Defines *******************************************************************/
 #define MAX_IO_BUFFER 128
 
+/* Types *********************************************************************/
+/* Interfaces ****************************************************************/
+static const char* DEFAULTgetPrompt (void);
 
+/* Data **********************************************************************/
 static int returnCode = 0;
 static const CLI_CommandEntry* commandEntryTable=NULL;
 static size_t commandEntryTableSize=0;
+const char* (*CLI_getPrompt) (void) = DEFAULTgetPrompt;
 
+/* Functions *****************************************************************/
 static const char* DEFAULTgetPrompt (void)
 {
   return "\n> ";
 }
 
-const char* (*CLI_getPrompt) (void) = DEFAULTgetPrompt;
 
-extern "C" void CLI_registerCommandEntryTable ( const CLI_CommandEntry* table, size_t size )
+extern "C" void CLI_registerCommandEntryTable ( const CLI_CommandEntry* table, int size )
 {
   commandEntryTable = table;
   commandEntryTableSize = size;
 }
+
 
 extern "C" int CLI_getLastReturnCode (void)
 {
@@ -64,6 +59,7 @@ static bool commandTest( const char* input, const char* testValue )
 
   return ( toupper(*input) == *testValue );
 }
+
 
 static int evaluate ( char* out, size_t out_size, char* in )
 {
@@ -111,12 +107,13 @@ static int evaluate ( char* out, size_t out_size, char* in )
     --out_size;
     return CLI_getLastReturnCode();
   }
-  
+
   printf( out, out_size-1, F("Syntax Error. Unknown command \"%s\".\n"), argv[0]);
   return -ENOMSG;
 }
 
-extern "C" void CLI_loop(void) 
+
+extern "C" void CLI_loop(void)
 {
   static char iobuffer[MAX_IO_BUFFER];
   // The Main REPL of the CLI

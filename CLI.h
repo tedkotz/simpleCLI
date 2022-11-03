@@ -10,12 +10,10 @@
 #define   CLI_H
 
 /* Includes ******************************************************************/
-#include <Arduino.h>
-#include <errno.h>
 
 #ifdef __cplusplus
 extern "C" {
-#endif  
+#endif
 
 /* Defines *******************************************************************/
 #define SUCCESS 0
@@ -29,7 +27,7 @@ extern "C" {
  * @return Error Code, 0 means success
  */
 typedef int (*CLI_CommandFunction) (int argc, char** argv);
-//typedef int (*CLI_CommandFunction) (int argc, char** argv, char* out, size_t out_size);
+//typedef int (*CLI_CommandFunction) (int argc, char** argv, char* out, int out_size);
 
 typedef struct CLI_CommandEntry
 {
@@ -42,10 +40,9 @@ typedef struct CLI_CommandEntry
 /* Interfaces ****************************************************************/
 
 /**
- * [Description]
+ * A function pointer that should be set to point to the callback that returns
+ * the CLI Prompt to print.
  *
- * @param
- * @return
  */
 extern const char* (*CLI_getPrompt) (void);
 
@@ -54,26 +51,24 @@ extern const char* (*CLI_getPrompt) (void);
 /* Functions *****************************************************************/
 
 /**
- * [Description]
+ * Registers a CLI_CommandEntry table with the CLI framework
  *
- * @param
- * @return
+ * @param table the table of commands to map to functions.
+ * @param size the number of entries to use in table
  */
-void CLI_registerCommandEntryTable ( const CLI_CommandEntry* table, size_t size );
+void CLI_registerCommandEntryTable ( const CLI_CommandEntry* table, int size );
 
 /**
- * [Description]
+ * Runs a single run through the CLI Read Evaluate loop.
  *
- * @param
- * @return
  */
 void CLI_loop(void);
 
 /**
- * [Description]
+ * Returns the value returned by the last CLI command, useful for building
+ * prompts, etc.
  *
- * @param
- * @return
+ * @return the value returned by the last CLI command.
  */
 int CLI_getLastReturnCode (void);
 
